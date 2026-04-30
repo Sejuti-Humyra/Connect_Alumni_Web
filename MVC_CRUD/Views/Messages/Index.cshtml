@@ -1,0 +1,195 @@
+﻿@{
+    ViewData["Title"] = "Messages";
+
+    int currentUserId = ViewBag.CurrentUserId ?? 0;
+    var otherUser = ViewBag.OtherUser as MVC_CRUD.Models.User;
+    var messages = ViewBag.Messages as List<MVC_CRUD.Models.Message>;
+    var conversations = ViewBag.Conversations as List<MVC_CRUD.Models.Message>;
+    int activeUserId = ViewBag.ActiveUserId ?? 0;
+}
+
+<style>
+    .msg-layout {
+        height: calc(100vh - 72px);
+    }
+</style>
+
+<div class="msg-layout flex border-t overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <div class="w-72 border-r bg-white flex flex-col">
+
+        <div class="p-4 border-b font-bold">
+            Messages
+        </div>
+
+        <input id="searchConvo"
+               class="m-3 p-2 text-sm border rounded-xl bg-slate-50"
+               placeholder="Search users..." />
+
+        <div class="flex-1 overflow-y-auto">
+
+            @if (conversations != null)
+            {
+                foreach (var msg in conversations)
+                {
+                    int otherId = msg.SenderId == currentUserId ? msg.ReceiverId : msg.SenderId;
+                    var other = msg.SenderId == currentUserId ? msg.Receiver : msg.Sender;
+
+                    bool isActive = otherId == activeUserId;
+
+                    <a href="@Url.Action("Conversation", "Messages", new { id = otherId })"
+                       class="convo-item flex gap-3 p-3 border-l-2
+                               @(isActive ? "bg-blue-50 border-blue-600" : "hover:bg-slate-50")">
+
+                        <div class="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center">
+                            @(other?.FullName?[0])
+                        </div>
+
+                        <div class="flex-1">
+                            <p class="text-sm font-semibold">@other?.FullName</p>
+                            <p class="text-xs text-slate-400 truncate">@msg.Content</p>
+                        </div>
+                    </a>
+                }
+            }
+
+        </div>
+    </div>
+
+    <!-- CHAT AREA -->
+    <div class="flex-1 flex flex-col bg-slate-50">
+
+        @if (otherUser != null)
+        {
+            <!-- HEADER -->
+            <div class="bg-white p-4 border-b flex gap-3">
+                <div class="w-9 h-9 bg-blue-600 text-white rounded-full flex items-center justify-center">
+                    @otherUser.FullName?[0]
+                </div>
+                <div>
+                    <p class="font-semibold">@otherUser.FullName</p>
+                    <span class="text-xs text-blue-600 bg-blue-50 px-2 rounded-full">
+                        @otherUser.Role
+                    </span>
+                </div>
+            </div>
+
+            <!-- MESSAGES -->
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-5 space-y-3">
+
+                @foreach (var msg in messages)
+                {
+                    bool isMine = msg.SenderId == currentUserId;
+
+                    <div class="flex @(isMine ? "justify-end" : "justify-start")">
+                        <div class="px-4 py-2 rounded-2xl text-sm
+                                @(isMine ? "bg-blue-600 text-white" : "bg-white border")">
+                            @msg.Content
+                        </div>
+                    </div>
+                }
+
+            </div>
+
+            <!-- INPUT -->
+            <div class="bg-white border-t p-3 flex gap-2">
+
+                <input type="hidden" id="receiverId" value="@otherUser.Id" />
+
+                <input id="msgInput"
+                       class="flex-1 p-2 border rounded-xl bg-slate-50"
+                       placeholder="Type message..." />
+
+                <button onclick="sendMessage()"
+                        class="bg-blue-600 text-white px-4 rounded-xl">
+                    Send
+                </button>
+
+            </div>
+        }
+        else
+        {
+            <div class="flex-1 flex items-center justify-center text-slate-400">
+                Select a conversation
+            </div>
+        }
+    </div>
+</div>
+<script>
+
+    let receiverId = document.getElementById("receiverId")?.value;
+
+    function scrollChat() {
+        let chat = document.getElementById("chatMessages");
+        if (chat) chat.scrollTop = chat.scrollHeight;
+    }
+
+    // SEND MESSAGE
+    function sendMessage() {
+
+        let input = document.getElementById("msgInput");
+        let text = input.value.trim();
+
+        if (!text) return;
+
+        fetch('/Messages/Send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `receiverId=${receiverId}&content=${text}`
+        })
+        .then(r => r.json())
+        .then(d => {
+            if (d.success) {
+                input.value = "";
+                loadMessages();
+            }
+        });
+    }
+
+    // LOAD MESSAGES (REAL TIME)
+    function loadMessages() {
+
+        if (!receiverId) return;
+
+        fetch(`/Messages/GetMessages?userId=${receiverId}`)
+            .then(r => r.json())
+            .then(data => {
+
+                let chat = document.getElementById("chatMessages");
+                chat.innerHTML = "";
+
+                data.forEach(m => {
+
+                    let isMine = m.senderId == @currentUserId;
+
+                    chat.innerHTML += `
+                        <div class="flex ${isMine ? 'justify-end' : 'justify-start'}">
+                            <div class="px-4 py-2 rounded-2xl text-sm
+                            ${isMine ? 'bg-blue-600 text-white' : 'bg-white border'}">
+                                ${m.content}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                scrollChat();
+            });
+    }
+
+    // POLLING (MESSENGER STYLE)
+    setInterval(loadMessages, 2000);
+
+    // SEARCH
+    document.getElementById('searchConvo')?.addEventListener('input', function () {
+        let v = this.value.toLowerCase();
+
+        document.querySelectorAll('.convo-item').forEach(e => {
+            e.style.display = e.innerText.toLowerCase().includes(v) ? '' : 'none';
+        });
+    });
+
+    // INIT
+    window.onload = loadMessages;
+
+</script>

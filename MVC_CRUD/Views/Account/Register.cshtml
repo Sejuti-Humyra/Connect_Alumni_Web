@@ -1,0 +1,112 @@
+﻿@model MVC_CRUD.Models.User
+@{
+    ViewData["Title"] = "Register";
+}
+
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-primary-600 flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-md">
+
+        <div class="bg-white rounded-3xl shadow-2xl overflow-hidden">
+
+            <!-- Header -->
+            <div class="bg-gradient-to-r from-primary-600 to-blue-700 px-8 py-8 text-center">
+                <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <i class="bi bi-person-plus-fill text-white text-2xl"></i>
+                </div>
+                <h2 class="font-display font-bold text-2xl text-white">Create Account</h2>
+                <p class="text-blue-200 text-sm mt-1">Join the ConnectAlumni network</p>
+            </div>
+
+            <!-- Form -->
+            <div class="px-8 py-8">
+
+                @if (ViewBag.Error != null)
+                {
+                    <div class="flex items-center gap-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl px-4 py-3 mb-6">
+                        <i class="bi bi-exclamation-circle-fill flex-shrink-0"></i>
+                        @ViewBag.Error
+                    </div>
+                }
+
+                <form asp-action="Register" method="post" class="space-y-5">
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
+                        <div class="relative">
+                            <i class="bi bi-person absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input asp-for="FullName" placeholder="Enter your full name"
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                        </div>
+                        <span asp-validation-for="FullName" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                        <div class="relative">
+                            <i class="bi bi-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input asp-for="Email" type="email" placeholder="Enter your email"
+                                   class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                        </div>
+                        <span asp-validation-for="Email" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+                        <div class="relative">
+                            <i class="bi bi-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input asp-for="Password" type="password" id="regPwd"
+                                   placeholder="Create a password"
+                                   class="w-full pl-10 pr-11 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all" />
+                            <button type="button" onclick="togglePwd('regPwd','regEye')"
+                                    class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                <i id="regEye" class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Password" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Role</label>
+                        <div class="relative">
+                            <i class="bi bi-shield-check absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <select asp-for="Role"
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all appearance-none bg-white">
+                                <option value="">-- Select Role --</option>
+                                <option value="Admin">Admin</option>
+                                <option value="Student">Student</option>
+                                <option value="Alumni">Alumni</option>
+                            </select>
+                            <i class="bi bi-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        </div>
+                        <span asp-validation-for="Role" class="text-red-500 text-xs mt-1 block"></span>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-primary-600 hover:bg-primary-700 text-black font-semibold py-3 rounded-xl transition-all text-sm shadow-md hover:shadow-lg hover:-translate-y-0.5">
+                        Create Account <i class="bi bi-arrow-right ml-1"></i>
+                    </button>
+
+                </form>
+
+                <p class="text-center text-sm text-slate-500 mt-6">
+                    Already have an account?
+                    <a asp-controller="Account" asp-action="Login"
+                       class="text-primary-600 font-semibold hover:underline">Login here</a>
+                </p>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function togglePwd(inputId, iconId) {
+            const i = document.getElementById(inputId);
+            const ic = document.getElementById(iconId);
+            i.type = i.type === 'password' ? 'text' : 'password';
+            ic.className = i.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
+        }
+    </script>
+}

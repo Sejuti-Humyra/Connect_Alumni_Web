@@ -1,0 +1,12 @@
+.card {
+    border-radius: 12px;
+    transition: 0.3s;
+}
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+body {
+    background-color: #f8f9fa;
+}

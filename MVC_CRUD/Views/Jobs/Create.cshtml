@@ -1,0 +1,48 @@
+﻿@model MVC_CRUD.Models.Job
+
+<div id="postJobCard" class="hidden bg-white rounded-2xl shadow-md border p-5 mb-6">
+
+    <form id="jobForm" class="space-y-3">
+
+        <h3 class="font-semibold text-lg text-slate-800">Post a Job</h3>
+
+        <input type="text" name="Title" required placeholder="Job Title"
+               class="w-full px-3 py-2 border rounded-lg text-sm" />
+
+        <input type="text" name="Company" required placeholder="Company"
+               class="w-full px-3 py-2 border rounded-lg text-sm" />
+
+        <div class="grid grid-cols-2 gap-2">
+            <input type="text" name="Location" placeholder="Location"
+                   class="px-3 py-2 border rounded-lg text-sm" />
+
+            <select name="Type"
+                    class="px-3 py-2 border rounded-lg text-sm bg-white">
+                <option>Full-time</option>
+                <option>Part-time</option>
+                <option>Remote</option>
+                <option>Internship</option>
+            </select>
+        </div>
+
+        <textarea name="Description" rows="2" placeholder="Description"
+                  class="w-full px-3 py-2 border rounded-lg text-sm resize-none"></textarea>
+
+        <input type="url" name="ApplyUrl" placeholder="Apply URL"
+               class="w-full px-3 py-2 border rounded-lg text-sm" />
+
+        <div class="flex gap-2">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                Post Job
+            </button>
+
+            <button type="button"
+                    onclick="togglePostForm(false)"
+                    class="bg-gray-200 px-4 py-2 rounded-lg text-sm">
+                Cancel
+            </button>
+        </div>
+
+    </form>
+</div>

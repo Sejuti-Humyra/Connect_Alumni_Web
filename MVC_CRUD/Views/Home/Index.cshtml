@@ -1,0 +1,180 @@
+﻿@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<style>
+    * {
+        transition: all 0.25s ease-in-out;
+    }
+
+    body {
+        background: #f8fafc;
+        animation: fadeIn 0.4s ease-in;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    .fade-up {
+        opacity: 0;
+        transform: translateY(18px);
+        transition: all 0.6s ease;
+    }
+
+        .fade-up.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+    .card {
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+        }
+
+    .quick-btn:hover {
+        transform: translateY(-2px);
+    }
+
+    .glass {
+        background: rgba(255,255,255,0.7);
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+<div class="min-h-screen">
+
+    <!-- TOP BAR / GREETING -->
+    <section class="bg-white border-b py-6 px-4">
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between fade-up">
+
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900">
+                    Welcome back 👋
+                </h1>
+                <p class="text-slate-500 text-sm">
+                    Stay connected with your alumni network
+                </p>
+            </div>
+
+            <div class="flex gap-3 mt-4 md:mt-0">
+                <a asp-controller="Posts" asp-action="Create"
+                   class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm quick-btn">
+                    + New Post
+                </a>
+
+                <a asp-controller="Messages" asp-action="Index"
+                   class="bg-slate-100 px-4 py-2 rounded-lg text-sm quick-btn">
+                    Messages
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- QUICK STATS -->
+    <section class="py-8 px-4">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 fade-up">
+
+            <div class="bg-white card p-4 text-center">
+                <h3 class="text-xl font-bold">1,200+</h3>
+                <p class="text-xs text-slate-500">Members</p>
+            </div>
+
+            <div class="bg-white card p-4 text-center">
+                <h3 class="text-xl font-bold">38</h3>
+                <p class="text-xs text-slate-500">Jobs</p>
+            </div>
+
+            <div class="bg-white card p-4 text-center">
+                <h3 class="text-xl font-bold">500+</h3>
+                <p class="text-xs text-slate-500">Connections</p>
+            </div>
+
+            <div class="bg-white card p-4 text-center">
+                <h3 class="text-xl font-bold">15+</h3>
+                <p class="text-xs text-slate-500">Departments</p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- MAIN FEATURES -->
+    <section class="px-4 pb-16">
+        <div class="max-w-6xl mx-auto">
+
+            <h2 class="text-lg font-semibold text-slate-800 mb-4 fade-up">
+                Quick Access
+            </h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">👥 Find Alumni</h3>
+                    <p class="text-sm text-slate-500 mb-3">Search and connect with people</p>
+                    <a asp-controller="Alumni" asp-action="Index" class="text-blue-600 text-sm font-medium">Open →</a>
+                </div>
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">💼 Jobs</h3>
+                    <p class="text-sm text-slate-500 mb-3">Explore career opportunities</p>
+                    <a asp-controller="Jobs" asp-action="Index" class="text-blue-600 text-sm font-medium">View →</a>
+                </div>
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">💬 Messages</h3>
+                    <p class="text-sm text-slate-500 mb-3">Chat with alumni instantly</p>
+                    <a asp-controller="Messages" asp-action="Index" class="text-blue-600 text-sm font-medium">Chat →</a>
+                </div>
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">📰 Feed</h3>
+                    <p class="text-sm text-slate-500 mb-3">See community updates</p>
+                    <a asp-controller="Posts" asp-action="Index" class="text-blue-600 text-sm font-medium">Explore →</a>
+                </div>
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">👤 Profile</h3>
+                    <p class="text-sm text-slate-500 mb-3">Manage your profile</p>
+                    <a asp-controller="User" asp-action="Profile" class="text-blue-600 text-sm font-medium">Open →</a>
+                </div>
+
+                <div class="bg-white card p-5 fade-up">
+                    <h3 class="font-semibold mb-2">🔒 Security</h3>
+                    <p class="text-sm text-slate-500 mb-3">Account settings</p>
+                    <a asp-controller="User" asp-action="EditProfile" class="text-blue-600 text-sm font-medium">Manage →</a>
+                </div>
+
+            </div>
+
+        </div>
+    </section>
+
+</div>
+
+@section Scripts {
+    <script>
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        });
+
+        document.querySelectorAll('.fade-up').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
+}

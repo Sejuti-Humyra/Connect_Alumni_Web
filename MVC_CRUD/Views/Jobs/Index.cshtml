@@ -1,0 +1,208 @@
+﻿@model List<MVC_CRUD.Models.Job>
+
+@{
+    ViewData["Title"] = "Job Portal";
+    string currentRole = ViewBag.UserRole ?? "";
+}
+
+<div class="max-w-5xl mx-auto px-4 py-10">
+
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-slate-900">Job Portal</h1>
+            <p class="text-sm text-slate-500">@Model.Count jobs available</p>
+        </div>
+
+        @if (currentRole == "Alumni" || currentRole == "Admin")
+        {
+            <button onclick="togglePostForm(true)"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                + Post Job
+            </button>
+        }
+    </div>
+
+    <!-- Create Job Form -->
+    @await Html.PartialAsync("Create", new MVC_CRUD.Models.Job())
+
+    <!-- Search -->
+    <div class="relative mb-5">
+        <input type="text" id="searchJob"
+               placeholder="Search jobs by title or company..."
+               class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" />
+        <i class="bi bi-search absolute left-3 top-2.5 text-slate-400"></i>
+    </div>
+
+    <!-- Job List -->
+    <div id="jobsList" class="space-y-4">
+
+        @if (!Model.Any())
+        {
+            <p class="text-slate-400 text-center">No jobs posted yet</p>
+        }
+
+        @foreach (var job in Model)
+        {
+            <div class="job-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm"
+                 data-title="@(job.Title ?? "").ToLower()"
+                 data-company="@(job.Company ?? "").ToLower()">
+
+                <div class="flex justify-between">
+                    <div>
+                        <h4 class="font-bold text-slate-900">@job.Title</h4>
+                        <p class="text-sm text-slate-500">@job.Company</p>
+
+                        <div class="flex gap-2 mt-2 text-xs">
+                            @if (!string.IsNullOrEmpty(job.Location))
+                            {
+                                <span class="bg-slate-100 px-2 py-1 rounded">
+                                    📍 @job.Location
+                                </span>
+                            }
+
+                            @if (!string.IsNullOrEmpty(job.Type))
+                            {
+                                <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded">
+                                    @job.Type
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="text-xs text-slate-400 text-right">
+                        <p>@job.PostedAt.ToString("dd MMM yyyy")</p>
+                        <p>by @job.PostedBy?.FullName</p>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(job.Description))
+                {
+                    <p class="text-sm mt-3 text-slate-700">@job.Description</p>
+                }
+
+                @if (!string.IsNullOrEmpty(job.ApplyUrl))
+                {
+                    <a href="@job.ApplyUrl" target="_blank"
+                       class="inline-block mt-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                        Apply
+                    </a>
+                }
+            </div>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+
+        // =============================
+        // Toggle Job Post Form
+        // =============================
+        function togglePostForm(show) {
+            const form = document.getElementById('postJobCard');
+            if (form) {
+                form.classList.toggle('hidden', !show);
+            }
+        }
+
+        // =============================
+        // SEARCH FUNCTION (FIXED)
+        // =============================
+        const searchInput = document.getElementById('searchJob');
+
+        searchInput?.addEventListener('input', function () {
+
+            const value = this.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.job-card');
+
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+
+                const title = (card.dataset.title || '').toLowerCase();
+                const company = (card.dataset.company || '').toLowerCase();
+
+                const match =
+                    title.includes(value) ||
+                    company.includes(value);
+
+                if (match) {
+                    card.style.display = '';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show "No results found"
+            let emptyMsg = document.getElementById("noResultsMsg");
+
+            if (visibleCount === 0) {
+                if (!emptyMsg) {
+                    emptyMsg = document.createElement("p");
+                    emptyMsg.id = "noResultsMsg";
+                    emptyMsg.className = "text-center text-slate-400 mt-6";
+                    emptyMsg.innerText = "No matching jobs found";
+                    document.getElementById("jobsList").appendChild(emptyMsg);
+                }
+            } else {
+                if (emptyMsg) emptyMsg.remove();
+            }
+        });
+
+        // =============================
+        // AJAX CREATE JOB (OPTIONAL)
+        // =============================
+        document.getElementById("jobForm")?.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            const res = await fetch('/Jobs/Create', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+
+                const job = data.job;
+
+                const newJob = `
+                <div class="job-card bg-white border border-slate-200 rounded-xl p-4 shadow-sm"
+                     data-title="${(job.title || '').toLowerCase()}"
+                     data-company="${(job.company || '').toLowerCase()}">
+
+                    <div class="flex justify-between">
+                        <div>
+                            <h4 class="font-bold text-slate-900">${job.title}</h4>
+                            <p class="text-sm text-slate-500">${job.company}</p>
+                        </div>
+                        <div class="text-xs text-slate-400">
+                            <p>${job.postedAt}</p>
+                            <p>by ${job.postedBy}</p>
+                        </div>
+                    </div>
+
+                    ${job.description ? `<p class="text-sm mt-3 text-slate-700">${job.description}</p>` : ''}
+
+                    ${job.applyUrl ? `
+                        <a href="${job.applyUrl}" target="_blank"
+                           class="inline-block mt-3 bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                           Apply
+                        </a>` : ''}
+                </div>
+                `;
+
+                document.getElementById("jobsList").insertAdjacentHTML("afterbegin", newJob);
+
+                this.reset();
+                togglePostForm(false);
+            }
+        });
+
+    </script>
+}

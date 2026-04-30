@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ConnectAlumni</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="flex flex-col min-h-screen bg-gray-50 font-sans text-gray-900 antialiased">
+    <!-- NAVBAR -->
+    <header class="bg-blue-600 text-white shadow relative z-50">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <!-- Brand -->
+                <div class="flex items-center">
+                    <a class="flex-shrink-0 flex items-center font-bold text-xl text-white hover:text-gray-200" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-people-fill mr-2"></i> ConnectAlumni
+                    </a>
+                </div>
+
+                <!-- Menu Desktop -->
+                <div class="hidden md:flex items-center space-x-1">
+                    @if (Context.Session.GetString("UserName") != null)
+                    {
+                        <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-blue-700" : "")" asp-controller="Home" asp-action="Index">
+                            <i class="bi bi-house mr-1"></i>Home
+                        </a>
+                        <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Alumni" ? "bg-blue-700" : "")" asp-controller="Alumni" asp-action="Index">
+                            <i class="bi bi-mortarboard mr-1"></i>People
+                        </a>
+                        <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "bg-blue-700" : "")" asp-controller="Jobs" asp-action="Index">
+                            <i class="bi bi-briefcase mr-1"></i>Jobs
+                        </a>
+                        <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Posts" ? "bg-blue-700" : "")" asp-controller="Posts" asp-action="Index">
+                            <i class="bi bi-newspaper mr-1"></i>News Feed
+                        </a>
+                        <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Messages" ? "bg-blue-700" : "")" asp-controller="Messages" asp-action="Index">
+                            <i class="bi bi-chat-dots mr-1"></i>Messages
+                        </a>
+
+                        @if (Context.Session.GetString("UserRole") == "Admin")
+                        {
+                            <a class="text-white hover:bg-blue-700 px-3 py-2 rounded-md text-sm font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" ? "bg-blue-700" : "")" asp-controller="Admin" asp-action="Dashboard">
+                                <i class="bi bi-speedometer2 mr-1"></i>Dashboard
+                            </a>
+                        }
+
+                        <!-- Profile Dropdown -->
+                        <div class="relative ml-3 group">
+                            <button type="button" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-blue-600 focus:ring-white items-center gap-2" id="user-menu-button">
+                                <span class="rounded-full bg-white text-blue-600 font-bold flex items-center justify-center w-8 h-8 text-sm">
+                                    @Context.Session.GetString("UserName")?.Substring(0, 1).ToUpper()
+                                </span>
+                                <span class="text-white font-medium">@Context.Session.GetString("UserName")</span>
+                            </button>
+
+                            <!-- Add a subtle invisible hover bridge to prevent losing hover status -->
+                            <div class="absolute right-0 w-48 h-2"></div>
+
+                            <div class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 hidden group-hover:block transition-all duration-200">
+                                <div class="px-4 py-3 text-sm text-gray-700 border-b border-gray-100">
+                                    Signed in as <strong class="font-bold text-gray-900">@Context.Session.GetString("UserRole")</strong>
+                                </div>
+                                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600" asp-controller="User" asp-action="Profile">
+                                    <i class="bi bi-person mr-2"></i>My Profile
+                                </a>
+                                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600" asp-controller="User" asp-action="EditProfile">
+                                    <i class="bi bi-pencil-square mr-2"></i>Edit Profile
+                                </a>
+                                <a class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600" asp-controller="User" asp-action="ChangePassword">
+                                    <i class="bi bi-lock mr-2"></i>Change Password
+                                </a>
+                                <div class="border-t border-gray-100 my-1"></div>
+                                <a class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50" asp-controller="Account" asp-action="Logout">
+                                    <i class="bi bi-box-arrow-right mr-2"></i>Logout
+                                </a>
+                            </div>
+                        </div>
+                    }
+                   
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button type="button" id="mobile-menu-btn" class="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white transition-colors">
+                        <i class="bi bi-list text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden bg-blue-700" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                @if (Context.Session.GetString("UserName") != null)
+                {
+                    <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Home" asp-action="Index">
+                        <i class="bi bi-house mr-2"></i>Home
+                    </a>
+                    <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Alumni" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Alumni" asp-action="Index">
+                        <i class="bi bi-mortarboard mr-2"></i>People
+                    </a>
+                    <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Jobs" asp-action="Index">
+                        <i class="bi bi-briefcase mr-2"></i>Jobs
+                    </a>
+                    <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Posts" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Posts" asp-action="Index">
+                        <i class="bi bi-newspaper mr-2"></i>News Feed
+                    </a>
+                    <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Messages" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Messages" asp-action="Index">
+                        <i class="bi bi-chat-dots mr-2"></i>Messages
+                    </a>
+                    @if (Context.Session.GetString("UserRole") == "Admin")
+                    {
+                        <a class="text-white block px-3 py-2 rounded-md text-base font-medium @(ViewContext.RouteData.Values["controller"]?.ToString() == "Admin" ? "bg-blue-800" : "hover:bg-blue-600")" asp-controller="Admin" asp-action="Dashboard">
+                            <i class="bi bi-speedometer2 mr-2"></i>Dashboard
+                        </a>
+                    }
+                    <div class="border-t border-blue-600 pt-4 pb-3 mt-4">
+                        <div class="flex items-center px-3">
+                            <div class="flex-shrink-0">
+                                <span class="rounded-full bg-white text-blue-700 font-bold flex items-center justify-center w-10 h-10 text-lg">
+                                    @Context.Session.GetString("UserName")?.Substring(0, 1).ToUpper()
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-base font-medium leading-none text-white">@Context.Session.GetString("UserName")</div>
+                                <div class="text-sm font-medium leading-none text-blue-200 mt-1">@Context.Session.GetString("UserRole")</div>
+                            </div>
+                        </div>
+                        <div class="mt-3 px-2 space-y-1">
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600" asp-controller="User" asp-action="Profile"><i class="bi bi-person mr-2"></i>My Profile</a>
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600" asp-controller="User" asp-action="EditProfile"><i class="bi bi-pencil-square mr-2"></i>Edit Profile</a>
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-blue-600" asp-controller="User" asp-action="ChangePassword"><i class="bi bi-lock mr-2"></i>Change Password</a>
+                            <a class="block px-3 py-2 rounded-md text-base font-medium text-red-200 hover:bg-blue-600" asp-controller="Account" asp-action="Logout"><i class="bi bi-box-arrow-right mr-2"></i>Logout</a>
+                        </div>
+                    </div>
+                }
+               
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        <!-- We keep role="main" for accessibility -->
+        <div role="main">
+            @RenderBody()
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-sm text-gray-500">
+                &copy; 2026 ConnectAlumni | Built with ASP.NET Core MVC & Tailwind CSS
+            </p>
+        </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // Simple mobile menu toggle
+        document.getElementById('mobile-menu-btn')?.addEventListener('click', function () {
+            var menu = document.getElementById('mobile-menu');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+            } else {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

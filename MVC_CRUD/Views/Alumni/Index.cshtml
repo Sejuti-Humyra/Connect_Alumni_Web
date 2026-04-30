@@ -1,0 +1,118 @@
+﻿@model List<MVC_CRUD.Models.User>
+
+@{
+    ViewData["Title"] = "People";
+    var users = Model ?? new List<MVC_CRUD.Models.User>();
+}
+
+<div class="max-w-7xl mx-auto px-4 py-10">
+
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-slate-900">
+            Find People
+        </h1>
+        <p class="text-slate-500 text-sm mt-1">
+            Search and connect with users
+        </p>
+    </div>
+
+    <!-- SEARCH FORM -->
+    <form method="get" class="bg-white rounded-2xl border p-4 mb-8 flex flex-wrap gap-3">
+
+        <input type="text" name="search"
+               value="@Context.Request.Query["search"]"
+               placeholder="Search by name or email..."
+               class="flex-1 min-w-48 bg-slate-50 rounded-xl px-4 py-2.5 text-sm border" />
+
+        <select name="role"
+                class="bg-slate-50 rounded-xl px-4 py-2.5 text-sm border">
+            <option value="">All Roles</option>
+            <option value="Student">Student</option>
+            <option value="Alumni">Alumni</option>
+            <option value="Admin">Admin</option>
+        </select>
+
+        <button type="submit"
+                class="bg-blue-600 hover:bg-blue-700 text-white px-5 rounded-xl">
+            Search
+        </button>
+
+    </form>
+
+    <!-- EMPTY STATE -->
+    @if (!users.Any())
+    {
+        <div class="text-center py-20 text-slate-400">
+            <i class="bi bi-search text-5xl opacity-30 block mb-4"></i>
+            <p class="font-semibold">Search for users</p>
+            <p class="text-sm">Type a name or email to begin</p>
+        </div>
+    }
+    else
+    {
+        <!-- RESULTS GRID -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+
+            @foreach (var alumni in users)
+            {
+                <div class="bg-white rounded-3xl border shadow-sm hover:shadow-lg transition-all overflow-hidden">
+
+                    <!-- Avatar -->
+                    <div class="bg-blue-600 h-16 relative">
+                        <div class="absolute -bottom-5 left-1/2 -translate-x-1/2">
+                            <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center border-2">
+                                <span class="text-xl font-bold text-blue-600">
+                                    @alumni.FullName?.Substring(0, 1).ToUpper()
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="pt-8 pb-5 px-5 text-center">
+
+                        <!-- Name -->
+                        <a href="@Url.Action("Details", "Alumni", new { id = alumni.Id })"
+                           class="font-bold text-slate-900 text-sm hover:text-blue-600 no-underline">
+                            @alumni.FullName
+                        </a>
+
+                        <!-- Role -->
+                        <span class="block mt-1 text-xs bg-blue-50 text-blue-600 px-3 py-0.5 rounded-full">
+                            @alumni.Role
+                        </span>
+
+                        <!-- Email -->
+                        <p class="text-xs text-slate-400 mt-2 truncate">
+                            @alumni.Email
+                        </p>
+
+                        <!-- Joined -->
+                        <p class="text-xs text-slate-300 mt-1">
+                            Joined @alumni.CreatedAt.ToString("MMM yyyy")
+                        </p>
+
+                        <!-- Actions -->
+                        <div class="mt-4 flex flex-col gap-2">
+
+                            <a href="@Url.Action("Details", "Alumni", new { id = alumni.Id })"
+                               class="w-full text-xs bg-slate-100 hover:bg-slate-200 py-2 rounded-xl text-slate-700">
+                                View Profile
+                            </a>
+
+                            <a href="@Url.Action("Conversation", "Messages", new { id = alumni.Id })"
+                               class="w-full text-xs bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl">
+                                Message
+                            </a>
+
+                        </div>
+
+                    </div>
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
