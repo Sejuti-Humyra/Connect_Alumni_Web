@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
 using MVC_CRUD.Data;
+using MVC_CRUD.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +25,28 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Register password hasher for your User entity (used in Login)
+builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+// Configure Authentication: default to cookie auth
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+    options.Cookie.Name = "ConnectAlumni.Auth";
+    options.ExpireTimeSpan = TimeSpan.FromDays(14);
+    options.SlidingExpiration = true;
+});
+
+// Authorization
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // ----------------------------
@@ -41,7 +66,8 @@ app.UseRouting();
 // Enable session
 app.UseSession();
 
-// Authorization middleware (for future use)
+// Authentication/Authorization middleware order is important
+app.UseAuthentication();   // <-- Must come before UseAuthorization
 app.UseAuthorization();
 
 // Map controller routes

@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using MVC_CRUD.Data;
 using MVC_CRUD.Models;
 using System;
 using System.Linq;
-using MVC_CRUD.Data;
 
 namespace MVC_CRUD.Controllers
 {
@@ -63,6 +64,19 @@ namespace MVC_CRUD.Controllers
             }
 
             return Json(new { success = false });
+        }
+        public async Task<IActionResult> Details(int id)
+        {
+            var job = await _context.Jobs
+                .Include(j => j.PostedBy)
+                .FirstOrDefaultAsync(j => j.Id == id);
+
+            if (job == null)
+            {
+                return NotFound();
+            }
+
+            return View(job);
         }
     }
 }

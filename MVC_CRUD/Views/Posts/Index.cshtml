@@ -1,6 +1,8 @@
 ﻿@model List<MVC_CRUD.Models.Post>
+
 @{
     ViewData["Title"] = "News Feed";
+
     int currentUserId = ViewBag.CurrentUserId ?? 0;
     int newPostId = TempData["NewPostId"] != null ? (int)TempData["NewPostId"] : 0;
 }
@@ -51,10 +53,12 @@
 
 <div class="max-w-2xl mx-auto px-4 py-8">
 
-    <!-- Create Post -->
+    <!-- ================= CREATE POST ================= -->
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 mb-6">
+
         <div class="flex gap-3">
-            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center flex-shrink-0">
+
+            <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">
                 @ViewBag.UserName?.ToString().Substring(0, 1).ToUpper()
             </div>
 
@@ -63,25 +67,26 @@
 
                 <textarea name="content" rows="3"
                           placeholder="Share something with your network..."
-                          class="w-full bg-slate-50 rounded-2xl px-4 py-3 text-sm text-slate-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-100 transition-all"></textarea>
+                          class="w-full bg-slate-50 rounded-2xl px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 border"></textarea>
 
                 <div class="flex justify-end mt-2">
                     <button type="submit"
-                            class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-all">
-                        <i class="bi bi-send"></i> Post
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm px-5 py-2.5 rounded-xl">
+                        Post
                     </button>
                 </div>
+
             </form>
+
         </div>
+
     </div>
 
-    <!-- Feed -->
+    <!-- ================= FEED ================= -->
     @if (!Model.Any())
     {
         <div class="text-center py-16 text-slate-400">
-            <i class="bi bi-newspaper text-5xl opacity-30 block mb-4"></i>
-            <p class="font-semibold">No posts yet.</p>
-            <p class="text-sm">Be the first to share something!</p>
+            <p>No posts yet.</p>
         </div>
     }
 
@@ -93,169 +98,137 @@
         bool isNew = post.Id == newPostId;
 
         <div id="post-@post.Id"
-             class="bg-white rounded-3xl border border-slate-100 shadow-sm mb-5 overflow-hidden @(isNew ? "new-post-card" : "")">
+             class="bg-white rounded-3xl border shadow-sm mb-5 @(isNew ? "new-post-card" : "")">
 
             <div class="p-5">
 
-                <!-- Header -->
-                <div class="flex items-start justify-between mb-4">
+                <!-- ================= HEADER ================= -->
+                <div class="flex justify-between mb-4">
+
                     <div class="flex items-center gap-3">
+
                         <div class="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">
                             @post.User?.FullName?.Substring(0, 1).ToUpper()
                         </div>
 
                         <div>
-                            <div class="flex items-center gap-2">
-                                <p class="font-semibold text-sm text-slate-900">@post.User?.FullName</p>
+                            <p class="font-semibold text-sm">@post.User?.FullName</p>
 
-                                @if (isNew)
-                                {
-                                    <span class="new-post-badge inline-flex items-center gap-1 bg-green-100 text-green-600 text-xs font-semibold px-2 py-0.5 rounded-full">
-                                        <i class="bi bi-check-circle-fill"></i> Just posted
-                                    </span>
-                                }
-                            </div>
-
-                            <div class="flex items-center gap-2 mt-0.5">
-                                <span class="text-xs bg-blue-50 text-blue-600 font-medium px-2 py-0.5 rounded-full">
-                                    @post.User?.Role
+                            @if (isNew)
+                            {
+                                <span class="new-post-badge text-xs bg-green-100 text-green-600 px-2 py-0.5 rounded-full">
+                                    Just posted
                                 </span>
+                            }
 
-                                <span class="text-xs text-slate-400">
-                                    @post.CreatedAt.ToString("dd MMM yyyy · hh:mm tt")
-                                </span>
-                            </div>
+                            <p class="text-xs text-slate-400">
+                                @post.CreatedAt.ToString("dd MMM yyyy · hh:mm tt")
+                            </p>
                         </div>
+
                     </div>
 
+                    <!-- ================= DELETE ================= -->
                     @if (isOwner || isAdmin)
                     {
                         <form asp-action="Delete" method="post">
+                            @Html.AntiForgeryToken()
                             <input type="hidden" name="id" value="@post.Id" />
+
                             <button type="submit"
                                     onclick="return confirm('Delete this post?')"
-                                    class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all">
-                                <i class="bi bi-trash"></i>
+                                    class="text-slate-400 hover:text-red-500">
+                                🗑
                             </button>
                         </form>
                     }
+
                 </div>
 
-                <!-- Content -->
-                <p class="text-sm text-slate-700 leading-relaxed mb-4">@post.Content</p>
+                <!-- ================= CONTENT ================= -->
+                <p class="text-sm mb-4">@post.Content</p>
 
-                <!-- Counts -->
-                <div class="flex items-center gap-4 text-xs text-slate-400 pb-3 border-b border-slate-50">
-                    <span class="flex items-center gap-1">
-                        <i class="bi bi-heart-fill text-red-400"></i>
-                        @post.Likes.Count Like@(post.Likes.Count != 1 ? "s" : "")
-                    </span>
-
-                    <span class="flex items-center gap-1">
-                        <i class="bi bi-chat-dots"></i>
-                        @post.Comments.Count Comment@(post.Comments.Count != 1 ? "s" : "")
-                    </span>
+                <!-- ================= LIKE / COMMENT COUNT ================= -->
+                <div class="text-xs text-slate-400 flex gap-4 border-b pb-2">
+                    <span>@post.Likes.Count Likes</span>
+                    <span>@post.Comments.Count Comments</span>
                 </div>
 
-                <!-- Actions -->
-                <div class="flex items-center gap-2 pt-3">
+                <!-- ================= ACTIONS ================= -->
+                <div class="flex gap-2 mt-3">
 
                     <form asp-action="ToggleLike" method="post">
                         <input type="hidden" name="postId" value="@post.Id" />
-                        <button type="submit"
-                                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold transition-all
-                                    @(userLiked ? "bg-red-50 text-red-500 hover:bg-red-100" : "bg-slate-50 text-slate-500 hover:bg-slate-100")">
-                            <i class="bi bi-heart@(userLiked ? "-fill" : "")"></i>
+
+                        <button class="text-xs px-3 py-1 rounded
+                                @(userLiked ? "bg-red-100 text-red-500" : "bg-slate-100")">
+
                             @(userLiked ? "Liked" : "Like")
+
                         </button>
                     </form>
 
                     <button onclick="toggleComment(@post.Id)"
-                            class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-slate-50 text-slate-500 hover:bg-slate-100 transition-all">
-                        <i class="bi bi-chat-dots"></i> Comment
+                            class="text-xs px-3 py-1 bg-slate-100 rounded">
+                        Comment
                     </button>
 
                 </div>
 
-                <!-- Comments -->
+                <!-- ================= COMMENTS ================= -->
                 @if (post.Comments.Any())
                 {
                     <div class="mt-4 space-y-2">
-                        @foreach (var comment in post.Comments.OrderBy(c => c.CreatedAt))
+
+                        @foreach (var comment in post.Comments)
                         {
-                            <div class="flex gap-2 items-start">
-                                <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-600 font-bold text-xs flex items-center justify-center">
-                                    @comment.User?.FullName?.Substring(0, 1).ToUpper()
-                                </div>
+                            <div class="text-xs bg-slate-50 p-2 rounded">
 
-                                <div class="flex-1 bg-slate-50 rounded-2xl px-3 py-2">
-                                    <div class="flex items-center justify-between">
-                                        <span class="font-semibold text-xs text-slate-700">
-                                            @comment.User?.FullName
-                                        </span>
+                                <b>@comment.User?.FullName</b>:
+                                @comment.Content
 
-                                        <span class="text-xs text-slate-400">
-                                            @comment.CreatedAt.ToString("dd MMM")
-                                        </span>
-                                    </div>
-
-                                    <p class="text-xs text-slate-600 mt-0.5">@comment.Content</p>
-                                </div>
-
-                                @if (comment.UserId == currentUserId || isAdmin)
-                                {
-                                    <form asp-action="DeleteComment" method="post">
-                                        <input type="hidden" name="id" value="@comment.Id" />
-                                        <button type="submit"
-                                                class="text-slate-300 hover:text-red-400 text-xs mt-1">
-                                            <i class="bi bi-x-circle"></i>
-                                        </button>
-                                    </form>
-                                }
                             </div>
                         }
+
                     </div>
                 }
 
-                <!-- Comment Input -->
+                <!-- ================= COMMENT BOX ================= -->
                 <div id="comment-box-@post.Id" class="hidden mt-3">
+
                     <form asp-action="AddComment" method="post">
+
                         <input type="hidden" name="postId" value="@post.Id" />
 
                         <div class="flex gap-2">
-                            <input type="text" name="content"
-                                   placeholder="Write a comment..."
-                                   class="flex-1 bg-slate-50 rounded-2xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-100" />
 
-                            <button type="submit"
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-2xl text-xs">
-                                <i class="bi bi-send"></i>
+                            <input type="text"
+                                   name="content"
+                                   class="flex-1 border rounded px-3 py-1 text-xs"
+                                   placeholder="Write comment..." />
+
+                            <button class="bg-blue-600 text-white px-3 py-1 text-xs rounded">
+                                Send
                             </button>
+
                         </div>
+
                     </form>
+
                 </div>
 
             </div>
+
         </div>
     }
+
 </div>
 
 @section Scripts {
     <script>
         function toggleComment(id) {
-            const box = document.getElementById('comment-box-' + id);
-            box.classList.toggle('hidden');
-            if (!box.classList.contains('hidden'))
-                box.querySelector('input').focus();
+            document.getElementById('comment-box-' + id)
+                .classList.toggle('hidden');
         }
-
-        window.addEventListener('DOMContentLoaded', () => {
-            const newPost = document.querySelector('.new-post-card');
-            if (newPost) {
-                setTimeout(() => {
-                    newPost.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 200);
-            }
-        });
     </script>
 }

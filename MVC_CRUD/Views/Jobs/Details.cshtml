@@ -1,19 +1,83 @@
-﻿@{
+﻿@model MVC_CRUD.Models.Job
+
+@{
     ViewData["Title"] = "Job Details";
 }
 
-<div class="container">
-    <div class="card shadow p-4">
-        <h3>Software Developer</h3>
-        <p class="text-muted">Company XYZ</p>
+<div class="max-w-4xl mx-auto px-4 py-10">
 
-        <hr />
+    <div class="bg-white shadow-sm border rounded-2xl p-6">
 
-        <h5>Description</h5>
-        <p>Looking for a skilled ASP.NET Core developer.</p>
+        <!-- Header -->
+        <div class="flex justify-between items-start">
 
-        <button class="btn btn-primary">
-            Apply Now
-        </button>
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900">
+                    @Model.Title
+                </h1>
+
+                <p class="text-lg text-slate-500 mt-1">
+                    @Model.Company
+                </p>
+
+                <div class="flex gap-2 mt-4 flex-wrap">
+
+                    @if (!string.IsNullOrEmpty(Model.Location))
+                    {
+                        <span class="bg-slate-100 px-3 py-1 rounded-full text-sm">
+                            📍 @Model.Location
+                        </span>
+                    }
+
+                    @if (!string.IsNullOrEmpty(Model.Type))
+                    {
+                        <span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                            @Model.Type
+                        </span>
+                    }
+
+                </div>
+            </div>
+
+            <div class="text-right text-sm text-slate-400">
+                <p>@Model.PostedAt.ToString("dd MMM yyyy")</p>
+                <p>Posted by @Model.PostedBy?.FullName</p>
+            </div>
+
+        </div>
+
+        <!-- Description -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-3">
+                Job Description
+            </h2>
+
+            <div class="text-slate-700 leading-7 whitespace-pre-line">
+                @Model.Description
+            </div>
+        </div>
+
+        <!-- Apply Button -->
+        @if (!string.IsNullOrEmpty(Model.ApplyUrl))
+        {
+            <div class="mt-8">
+                <a href="@Model.ApplyUrl"
+                   target="_blank"
+                   class="inline-block bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-lg">
+                    Apply Now
+                </a>
+            </div>
+        }
+
+        <!-- Back -->
+        <div class="mt-6">
+            <a asp-controller="Jobs"
+               asp-action="Index"
+               class="text-blue-600 hover:underline">
+                ← Back to Jobs
+            </a>
+        </div>
+
     </div>
+
 </div>
